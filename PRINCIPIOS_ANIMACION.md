@@ -6,7 +6,7 @@ Este documento explica cómo se implementaron los 12 principios fundamentales de
 
 ---
 
-## 1. 🎯 **SQUASH AND STRETCH** (Estiramiento y Encogimiento)
+## 1.  **SQUASH AND STRETCH** (Estiramiento y Encogimiento)
 **Principio**: Los objetos deben moverse como si tuvieran masa y volumen.
 
 ### Implementación en el juego:
@@ -28,7 +28,7 @@ this.tweens.add({
 
 ---
 
-## 2. ⚡ **ANTICIPATION** (Anticipación)
+## 2.  **ANTICIPATION** (Anticipación)
 **Principio**: Un movimiento debe ser precedido por una acción que lo prepare.
 
 ### Implementación en el juego:
@@ -52,7 +52,7 @@ showAnticipation() {
 
 ---
 
-## 3. 🎭 **STAGING** (Puesta en Escena)
+## 3.  **STAGING** (Puesta en Escena)
 **Principio**: Cada postura debe ser clara y comunicar la acción.
 
 ### Implementación en el juego:
