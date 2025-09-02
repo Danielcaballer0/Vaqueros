@@ -93,11 +93,12 @@
             }
 
             preload() {
-                // Crear sprites simples usando gráficos de Phaser si no hay imágenes
-                this.load.image('desert', '../src/assets/desert-background.png');
-                this.load.image('cowboy', '../src/assets/cowboy-sprite.png');
+                // Cargar las imágenes proporcionadas por el usuario
+                this.load.image('desert', '/lovable-uploads/b72c89a7-5d50-4cb0-bc95-272131095127.png');
+                this.load.image('cowboy', '/lovable-uploads/b464ec1c-1bcf-47a1-bdc5-ef6775345d6a.png');
+                this.load.image('duel-scene', '/lovable-uploads/e958b4f2-019c-44dd-9482-c03b88e3f2fc.png');
                 
-                // Fallback: crear sprites con gráficos básicos
+                // Fallback: crear sprites con gráficos básicos si no cargan las imágenes
                 this.createFallbackSprites();
             }
 
@@ -146,27 +147,33 @@
             // =================================
             
             createDesertBackground() {
-                // Fondo del desierto
-                const bg = this.add.rectangle(400, 300, 800, 600, 0x87CEEB);
-                
-                // Montañas en el fondo (Principio: Profundidad y composición)
-                const mountains = this.add.graphics();
-                mountains.fillStyle(0xCD853F);
-                mountains.fillTriangle(100, 500, 200, 350, 300, 500);
-                mountains.fillTriangle(500, 500, 600, 320, 700, 500);
-                mountains.fillStyle(0x8B4513);
-                mountains.fillTriangle(200, 500, 350, 280, 500, 500);
-                
-                // Suelo del desierto
-                const ground = this.add.rectangle(400, 550, 800, 100, 0xF4A460);
-                
-                // Cactus (Principio: Simplicidad y atractivo visual)
-                this.createCactus(150, 450);
-                this.createCactus(650, 470);
-                
-                // Sol
-                const sun = this.add.circle(700, 100, 50, 0xFFD700);
-                sun.setStrokeStyle(4, 0xFFA500);
+                // Intentar usar la imagen de fondo del desierto proporcionada
+                if (this.textures.exists('desert')) {
+                    const bg = this.add.image(400, 300, 'desert');
+                    bg.setDisplaySize(800, 600);
+                } else {
+                    // Fallback: Crear fondo programáticamente
+                    const bg = this.add.rectangle(400, 300, 800, 600, 0x87CEEB);
+                    
+                    // Montañas en el fondo (Principio: Profundidad y composición)
+                    const mountains = this.add.graphics();
+                    mountains.fillStyle(0xCD853F);
+                    mountains.fillTriangle(100, 500, 200, 350, 300, 500);
+                    mountains.fillTriangle(500, 500, 600, 320, 700, 500);
+                    mountains.fillStyle(0x8B4513);
+                    mountains.fillTriangle(200, 500, 350, 280, 500, 500);
+                    
+                    // Suelo del desierto
+                    const ground = this.add.rectangle(400, 550, 800, 100, 0xF4A460);
+                    
+                    // Cactus (Principio: Simplicidad y atractivo visual)
+                    this.createCactus(150, 450);
+                    this.createCactus(650, 470);
+                    
+                    // Sol
+                    const sun = this.add.circle(700, 100, 50, 0xFFD700);
+                    sun.setStrokeStyle(4, 0xFFA500);
+                }
             }
 
             createCactus(x, y) {
@@ -182,44 +189,64 @@
 
             createCowboys() {
                 // =================================
-                // VAQUERO 1 (Izquierda) - Principio: Diseño atractivo
+                // VAQUERO 1 (Izquierda) - Usar imagen del personaje proporcionada
                 // =================================
                 
                 this.cowboy1 = this.add.group();
                 
-                // Cuerpo
-                const body1 = this.add.rectangle(200, 400, 40, 80, 0x4169E1);
-                // Sombrero
-                const hat1 = this.add.ellipse(200, 340, 60, 25, 0x8B4513);
-                // Bandana
-                const bandana1 = this.add.rectangle(200, 360, 30, 15, 0xFF0000);
-                // Arma
-                const gun1 = this.add.rectangle(170, 390, 25, 8, 0x696969);
-                
-                this.cowboy1.addMultiple([body1, hat1, bandana1, gun1]);
+                if (this.textures.exists('cowboy')) {
+                    // Usar la imagen del vaquero proporcionada
+                    const cowboy1Sprite = this.add.image(200, 400, 'cowboy');
+                    cowboy1Sprite.setScale(0.8); // Ajustar tamaño
+                    cowboy1Sprite.setFlipX(false); // Mirando hacia la derecha
+                    this.cowboy1.add(cowboy1Sprite);
+                    this.cowboy1Body = cowboy1Sprite;
+                } else {
+                    // Fallback: Crear vaquero programáticamente
+                    const body1 = this.add.rectangle(200, 400, 40, 80, 0x4169E1);
+                    const hat1 = this.add.ellipse(200, 340, 60, 25, 0x8B4513);
+                    const bandana1 = this.add.rectangle(200, 360, 30, 15, 0xFF0000);
+                    const gun1 = this.add.rectangle(170, 390, 25, 8, 0x696969);
+                    this.cowboy1.addMultiple([body1, hat1, bandana1, gun1]);
+                    this.cowboy1Body = body1;
+                    this.gun1 = gun1;
+                }
                 
                 // =================================
-                // VAQUERO 2 (Derecha) - Principio: Diseño atractivo
+                // VAQUERO 2 (Derecha) - Usar imagen del personaje proporcionada
                 // =================================
                 
                 this.cowboy2 = this.add.group();
                 
-                // Cuerpo
-                const body2 = this.add.rectangle(600, 400, 40, 80, 0x4169E1);
-                // Sombrero  
-                const hat2 = this.add.ellipse(600, 340, 60, 25, 0x8B4513);
-                // Bandana
-                const bandana2 = this.add.rectangle(600, 360, 30, 15, 0xFF0000);
-                // Arma
-                const gun2 = this.add.rectangle(630, 390, 25, 8, 0x696969);
+                if (this.textures.exists('cowboy')) {
+                    // Usar la imagen del vaquero proporcionada
+                    const cowboy2Sprite = this.add.image(600, 400, 'cowboy');
+                    cowboy2Sprite.setScale(0.8); // Ajustar tamaño
+                    cowboy2Sprite.setFlipX(true); // Mirando hacia la izquierda
+                    this.cowboy2.add(cowboy2Sprite);
+                    this.cowboy2Body = cowboy2Sprite;
+                } else {
+                    // Fallback: Crear vaquero programáticamente
+                    const body2 = this.add.rectangle(600, 400, 40, 80, 0x4169E1);
+                    const hat2 = this.add.ellipse(600, 340, 60, 25, 0x8B4513);
+                    const bandana2 = this.add.rectangle(600, 360, 30, 15, 0xFF0000);
+                    const gun2 = this.add.rectangle(630, 390, 25, 8, 0x696969);
+                    this.cowboy2.addMultiple([body2, hat2, bandana2, gun2]);
+                    this.cowboy2Body = body2;
+                    this.gun2 = gun2;
+                }
                 
-                this.cowboy2.addMultiple([body2, hat2, bandana2, gun2]);
-                
-                // Guardar referencias para animaciones
-                this.cowboy1Body = body1;
-                this.cowboy2Body = body2;
-                this.gun1 = gun1;
-                this.gun2 = gun2;
+                // Si no se crearon las armas en el caso de usar sprites, crearlas aparte
+                if (this.textures.exists('cowboy')) {
+                    if (!this.gun1) {
+                        this.gun1 = this.add.rectangle(170, 390, 25, 8, 0x696969);
+                        this.cowboy1.add(this.gun1);
+                    }
+                    if (!this.gun2) {
+                        this.gun2 = this.add.rectangle(630, 390, 25, 8, 0x696969);
+                        this.cowboy2.add(this.gun2);
+                    }
+                }
             }
 
             createUI() {
