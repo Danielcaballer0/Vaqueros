@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duelo de Vaqueros - Western Showdown</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #D2B48C, #CD853F);
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .game-container {
+            border: 8px solid #8B4513;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(139, 69, 19, 0.4);
+            background: #F4A460;
+            padding: 20px;
+        }
+
+        .title {
+            text-align: center;
+            color: #8B4513;
+            font-size: 32px;
+            font-weight: bold;
+            text-shadow: 3px 3px 0px #CD853F;
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+        }
+
+        .instructions {
+            text-align: center;
+            color: #654321;
+            font-size: 16px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="title">🤠 DUELO DE VAQUEROS 🤠</div>
+        <div class="instructions">
+            Jugador 1: Tecla A | Jugador 2: Tecla L<br>
+            ¡Primero en llegar a 3 victorias gana!
+        </div>
+        <div id="game-container"></div>
+    </div>
+
+    <script>
+        // =================================
+        // CONFIGURACIÓN DEL JUEGO
+        // =================================
+        
+        let game;
+        let gameState = {
+            player1Name: '',
+            player2Name: '',
+            player1Score: 0,
+            player2Score: 0,
+            currentRound: 0,
+            gamePhase: 'SETUP', // SETUP, COUNTDOWN, READY, FINISHED
+            countdownStarted: false,
+            validShot: false,
+            roundWinner: null,
+            gameWinner: null
+        };
+
+        // =================================
+        // ESCENA PRINCIPAL DEL JUEGO
+        // =================================
+        
+        class GameScene extends Phaser.Scene {
+            constructor() {
+                super({ key: 'GameScene' });
+                this.cowboy1 = null;
+                this.cowboy2 = null;
+                this.countdownText = null;
+                this.scoreText = null;
+                this.messageText = null;
+                this.keys = null;
+                this.countdownTimer = null;
+                this.anticipationTween = null;
+            }
+
+            preload() {
+                // Crear sprites simples usando gráficos de Phaser si no hay imágenes
+                this.load.image('desert', '../src/assets/desert-background.png');
+                this.load.image('cowboy', '../src/assets/cowboy-sprite.png');
+                
+                // Fallback: crear sprites con gráficos básicos
+                this.createFallbackSprites();
+            }
+
+            createFallbackSprites() {
+                // Crear sprites de vaqueros usando gráficos básicos como fallback
+                this.add.graphics()
+                    .fillStyle(0x8B4513)
+                    .fillRect(0, 0, 100, 120)
+                    .generateTexture('cowboy-body', 100, 120);
+
+                this.add.graphics()
+                    .fillStyle(0x654321)
+                    .fillCircle(25, 25, 25)
+                    .generateTexture('cowboy-hat', 50, 50);
+            }
+
+            create() {
+                // =================================
+                // SETUP INICIAL
+                // =================================
+                
+                // Solicitar nombres de jugadores si no están definidos
+                if (!gameState.player1Name) {
+                    gameState.player1Name = prompt('Ingresa el nombre del Jugador 1 (Tecla A):') || 'Vaquero 1';
+                    gameState.player2Name = prompt('Ingresa el nombre del Jugador 2 (Tecla L):') || 'Vaquero 2';
+                }
+
+                // Crear fondo del desierto
+                this.createDesertBackground();
+                
+                // Crear vaqueros
+                this.createCowboys();
+                
+                // Crear interfaz de usuario
+                this.createUI();
+                
+                // Configurar controles
+                this.setupControls();
+                
+                // Iniciar primera ronda
+                this.startNewRound();
+            }
+
+            // =================================
+            // CREACIÓN DE ELEMENTOS VISUALES
+            // =================================
+            
+            createDesertBackground() {
+                // Fondo del desierto
+                const bg = this.add.rectangle(400, 300, 800, 600, 0x87CEEB);
+                
+                // Montañas en el fondo (Principio: Profundidad y composición)
+                const mountains = this.add.graphics();
+                mountains.fillStyle(0xCD853F);
+                mountains.fillTriangle(100, 500, 200, 350, 300, 500);
+                mountains.fillTriangle(500, 500, 600, 320, 700, 500);
+                mountains.fillStyle(0x8B4513);
+                mountains.fillTriangle(200, 500, 350, 280, 500, 500);
+                
+                // Suelo del desierto
+                const ground = this.add.rectangle(400, 550, 800, 100, 0xF4A460);
+                
+                // Cactus (Principio: Simplicidad y atractivo visual)
+                this.createCactus(150, 450);
+                this.createCactus(650, 470);
+                
+                // Sol
+                const sun = this.add.circle(700, 100, 50, 0xFFD700);
+                sun.setStrokeStyle(4, 0xFFA500);
+            }
+
+            createCactus(x, y) {
+                const cactus = this.add.graphics();
+                cactus.fillStyle(0x228B22);
+                // Tronco principal
+                cactus.fillRoundedRect(x - 15, y - 60, 30, 100, 8);
+                // Brazos laterales
+                cactus.fillRoundedRect(x - 35, y - 40, 20, 40, 6);
+                cactus.fillRoundedRect(x + 15, y - 30, 20, 30, 6);
+                return cactus;
+            }
+
+            createCowboys() {
+                // =================================
+                // VAQUERO 1 (Izquierda) - Principio: Diseño atractivo
+                // =================================
+                
+                this.cowboy1 = this.add.group();
+                
+                // Cuerpo
+                const body1 = this.add.rectangle(200, 400, 40, 80, 0x4169E1);
+                // Sombrero
+                const hat1 = this.add.ellipse(200, 340, 60, 25, 0x8B4513);
+                // Bandana
+                const bandana1 = this.add.rectangle(200, 360, 30, 15, 0xFF0000);
+                // Arma
+                const gun1 = this.add.rectangle(170, 390, 25, 8, 0x696969);
+                
+                this.cowboy1.addMultiple([body1, hat1, bandana1, gun1]);
+                
+                // =================================
+                // VAQUERO 2 (Derecha) - Principio: Diseño atractivo
+                // =================================
+                
+                this.cowboy2 = this.add.group();
+                
+                // Cuerpo
+                const body2 = this.add.rectangle(600, 400, 40, 80, 0x4169E1);
+                // Sombrero  
+                const hat2 = this.add.ellipse(600, 340, 60, 25, 0x8B4513);
+                // Bandana
+                const bandana2 = this.add.rectangle(600, 360, 30, 15, 0xFF0000);
+                // Arma
+                const gun2 = this.add.rectangle(630, 390, 25, 8, 0x696969);
+                
+                this.cowboy2.addMultiple([body2, hat2, bandana2, gun2]);
+                
+                // Guardar referencias para animaciones
+                this.cowboy1Body = body1;
+                this.cowboy2Body = body2;
+                this.gun1 = gun1;
+                this.gun2 = gun2;
+            }
+
+            createUI() {
+                // Marcador (Principio: Claridad y simplicidad)
+                this.scoreText = this.add.text(400, 50, 
+                    `${gameState.player1Name}: ${gameState.player1Score} | ${gameState.player2Name}: ${gameState.player2Score}`, 
+                    {
+                        fontSize: '24px',
+                        fill: '#8B4513',
+                        fontFamily: 'Courier New',
+                        fontStyle: 'bold',
+                        stroke: '#FFFFFF',
+                        strokeThickness: 2
+                    }
+                ).setOrigin(0.5);
+
+                // Texto de mensaje central
+                this.messageText = this.add.text(400, 150, '', {
+                    fontSize: '36px',
+                    fill: '#FF4500',
+                    fontFamily: 'Courier New',
+                    fontStyle: 'bold',
+                    stroke: '#FFFFFF',
+                    strokeThickness: 3
+                }).setOrigin(0.5);
+
+                // Texto de conteo regresivo
+                this.countdownText = this.add.text(400, 250, '', {
+                    fontSize: '72px',
+                    fill: '#FF0000',
+                    fontFamily: 'Courier New',
+                    fontStyle: 'bold',
+                    stroke: '#FFFFFF',
+                    strokeThickness: 4
+                }).setOrigin(0.5);
+            }
+
+            setupControls() {
+                this.keys = this.input.keyboard.addKeys('A,L');
+                
+                // Eventos de teclas
+                this.keys.A.on('down', () => this.handleShot(1));
+                this.keys.L.on('down', () => this.handleShot(2));
+            }
+
+            // =================================
+            // LÓGICA DEL JUEGO
+            // =================================
+            
+            startNewRound() {
+                gameState.currentRound++;
+                gameState.gamePhase = 'COUNTDOWN';
+                gameState.validShot = false;
+                gameState.roundWinner = null;
+
+                this.messageText.setText(`Ronda ${gameState.currentRound}`);
+                
+                // Resetear posiciones (Principio: Preparación/Staging)
+                this.resetCowboyPositions();
+                
+                // Iniciar conteo regresivo después de 2 segundos
+                this.time.delayedCall(2000, () => {
+                    this.startCountdown();
+                });
+            }
+
+            resetCowboyPositions() {
+                // Principio: Staging - Posición clara y preparatoria
+                this.cowboy1Body.setPosition(200, 400);
+                this.cowboy2Body.setPosition(600, 400);
+                this.gun1.setPosition(170, 390);
+                this.gun2.setPosition(630, 390);
+                
+                // Resetear rotaciones
+                this.cowboy1Body.setRotation(0);
+                this.cowboy2Body.setRotation(0);
+            }
+
+            startCountdown() {
+                let count = 3;
+                
+                // Principio: Anticipación - Preparar a los vaqueros
+                this.showAnticipation();
+                
+                const countInterval = setInterval(() => {
+                    if (count > 0) {
+                        this.countdownText.setText(count.toString());
+                        
+                        // Principio: Timing - Efecto de escala en cada número
+                        this.countdownText.setScale(1.5);
+                        this.tweens.add({
+                            targets: this.countdownText,
+                            scaleX: 1,
+                            scaleY: 1,
+                            duration: 300,
+                            ease: 'Back.easeOut'
+                        });
+                        
+                        count--;
+                    } else {
+                        // ¡DISPARO!
+                        this.countdownText.setText('¡DISPARO!');
+                        this.countdownText.setFill('#00FF00');
+                        
+                        // Principio: Exageración
+                        this.countdownText.setScale(2);
+                        this.tweens.add({
+                            targets: this.countdownText,
+                            scaleX: 1,
+                            scaleY: 1,
+                            duration: 500,
+                            ease: 'Elastic.easeOut'
+                        });
+                        
+                        gameState.gamePhase = 'READY';
+                        gameState.validShot = true;
+                        
+                        clearInterval(countInterval);
+                        
+                        // Auto-timeout después de 3 segundos
+                        this.time.delayedCall(3000, () => {
+                            if (gameState.gamePhase === 'READY') {
+                                this.handleTimeout();
+                            }
+                        });
+                    }
+                }, 1000);
+            }
+
+            showAnticipation() {
+                // Principio: Anticipación - Los vaqueros se preparan para disparar
+                this.tweens.add({
+                    targets: [this.cowboy1Body, this.cowboy2Body],
+                    y: '+=10', // Leve inclinación hacia adelante
+                    duration: 500,
+                    yoyo: true,
+                    repeat: 2,
+                    ease: 'Sine.easeInOut'
+                });
+            }
+
+            handleShot(player) {
+                if (gameState.gamePhase !== 'READY' && gameState.gamePhase !== 'COUNTDOWN') return;
+
+                if (gameState.gamePhase === 'COUNTDOWN') {
+                    // Disparo demasiado pronto
+                    this.showEarlyShot(player);
+                    return;
+                }
+
+                if (!gameState.validShot) return;
+
+                gameState.validShot = false;
+                gameState.roundWinner = player;
+                
+                // Principio: Acción y Reacción
+                this.animateShot(player);
+                
+                // Actualizar puntuación
+                if (player === 1) {
+                    gameState.player1Score++;
+                } else {
+                    gameState.player2Score++;
+                }
+                
+                // Verificar ganador del juego
+                this.checkGameWinner();
+                
+                // Continuar o finalizar
+                this.time.delayedCall(3000, () => {
+                    if (!gameState.gameWinner) {
+                        this.startNewRound();
+                    }
+                });
+            }
+
+            showEarlyShot(player) {
+                // Principio: Exageración - Penalización visual
+                const playerName = player === 1 ? gameState.player1Name : gameState.player2Name;
+                
+                this.messageText.setText(`${playerName}\n¡Disparo demasiado pronto!`);
+                this.messageText.setFill('#FF0000');
+                
+                // Animación de temblor (Principio: Exageración)
+                this.cameras.main.shake(300, 0.02);
+                
+                this.time.delayedCall(2000, () => {
+                    this.messageText.setText('');
+                });
+            }
+
+            animateShot(winner) {
+                const isPlayer1 = winner === 1;
+                const winnerBody = isPlayer1 ? this.cowboy1Body : this.cowboy2Body;
+                const loserBody = isPlayer1 ? this.cowboy2Body : this.cowboy1Body;
+                const winnerGun = isPlayer1 ? this.gun1 : this.gun2;
+                
+                // Principio: Acción y Reacción - Retroceso del disparo
+                this.tweens.add({
+                    targets: winnerBody,
+                    x: isPlayer1 ? '-=20' : '+=20',
+                    duration: 100,
+                    yoyo: true,
+                    ease: 'Power2.easeOut'
+                });
+                
+                // Animación del arma
+                this.tweens.add({
+                    targets: winnerGun,
+                    rotation: isPlayer1 ? -0.3 : 0.3,
+                    duration: 150,
+                    yoyo: true,
+                    ease: 'Power2.easeOut'
+                });
+                
+                // Principio: Exageración - Caída dramática del perdedor
+                this.tweens.add({
+                    targets: loserBody,
+                    rotation: isPlayer1 ? 1.5 : -1.5,
+                    y: '+=50',
+                    duration: 800,
+                    ease: 'Bounce.easeOut'
+                });
+                
+                // Mostrar ganador de la ronda
+                const winnerName = isPlayer1 ? gameState.player1Name : gameState.player2Name;
+                this.messageText.setText(`¡${winnerName} gana la ronda!`);
+                this.messageText.setFill('#00FF00');
+                
+                // Actualizar marcador
+                this.updateScore();
+            }
+
+            handleTimeout() {
+                this.messageText.setText('¡Tiempo agotado!\nNadie disparó');
+                this.messageText.setFill('#FFFF00');
+                
+                this.time.delayedCall(2000, () => {
+                    this.startNewRound();
+                });
+            }
+
+            updateScore() {
+                this.scoreText.setText(
+                    `${gameState.player1Name}: ${gameState.player1Score} | ${gameState.player2Name}: ${gameState.player2Score}`
+                );
+                
+                // Principio: Atractivo - Efecto de destello en el marcador
+                this.tweens.add({
+                    targets: this.scoreText,
+                    scaleX: 1.2,
+                    scaleY: 1.2,
+                    duration: 200,
+                    yoyo: true,
+                    ease: 'Power2.easeOut'
+                });
+            }
+
+            checkGameWinner() {
+                if (gameState.player1Score >= 3) {
+                    gameState.gameWinner = gameState.player1Name;
+                } else if (gameState.player2Score >= 3) {
+                    gameState.gameWinner = gameState.player2Name;
+                }
+                
+                if (gameState.gameWinner) {
+                    this.showGameWinner();
+                }
+            }
+
+            showGameWinner() {
+                // Principio: Exageración y Atractivo - Celebración espectacular
+                this.messageText.setText(`🎉 ${gameState.gameWinner}\nGANA LA PARTIDA 🎉`);
+                this.messageText.setFill('#FFD700');
+                this.messageText.setFontSize(48);
+                
+                // Animación de celebración (Principios: Arcos + Timing)
+                this.tweens.add({
+                    targets: this.messageText,
+                    scaleX: 1.5,
+                    scaleY: 1.5,
+                    rotation: 0.1,
+                    duration: 1000,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: 'Sine.easeInOut'
+                });
+                
+                // Efecto de fuegos artificiales
+                this.createFireworks();
+                
+                // Botón para reiniciar
+                this.time.delayedCall(3000, () => {
+                    const restartText = this.add.text(400, 500, 'Presiona ESPACIO para jugar de nuevo', {
+                        fontSize: '20px',
+                        fill: '#FFFFFF',
+                        backgroundColor: '#8B4513',
+                        padding: { x: 20, y: 10 }
+                    }).setOrigin(0.5).setInteractive();
+                    
+                    this.input.keyboard.once('keydown-SPACE', () => {
+                        this.restartGame();
+                    });
+                });
+            }
+
+            createFireworks() {
+                // Principio: Atractivo - Efectos visuales espectaculares
+                for (let i = 0; i < 5; i++) {
+                    this.time.delayedCall(i * 300, () => {
+                        const x = Phaser.Math.Between(100, 700);
+                        const y = Phaser.Math.Between(100, 300);
+                        
+                        // Crear partículas de fuegos artificiales
+                        for (let j = 0; j < 8; j++) {
+                            const particle = this.add.circle(x, y, 3, Phaser.Math.Between(0x000000, 0xFFFFFF));
+                            
+                            this.tweens.add({
+                                targets: particle,
+                                x: x + Phaser.Math.Between(-100, 100),
+                                y: y + Phaser.Math.Between(-100, 100),
+                                alpha: 0,
+                                duration: 1000,
+                                ease: 'Power2.easeOut',
+                                onComplete: () => particle.destroy()
+                            });
+                        }
+                    });
+                }
+            }
+
+            restartGame() {
+                // Reiniciar estado del juego
+                gameState.player1Score = 0;
+                gameState.player2Score = 0;
+                gameState.currentRound = 0;
+                gameState.gamePhase = 'SETUP';
+                gameState.gameWinner = null;
+                
+                // Reiniciar escena
+                this.scene.restart();
+            }
+        }
+
+        // =================================
+        // CONFIGURACIÓN E INICIO DE PHASER
+        // =================================
+        
+        const config = {
+            type: Phaser.AUTO,
+            width: 800,
+            height: 600,
+            parent: 'game-container',
+            backgroundColor: '#87CEEB',
+            scene: GameScene,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 0 },
+                    debug: false
+                }
+            }
+        };
+
+        // Inicializar juego cuando la página cargue
+        window.onload = function() {
+            game = new Phaser.Game(config);
+        };
+
+        // =================================
+        // APLICACIÓN DE LOS 12 PRINCIPIOS DE DISNEY
+        // =================================
+        
+        /*
+        1. SQUASH AND STRETCH (Estiramiento y Encogimiento):
+           - Aplicado en las animaciones del conteo regresivo (escala)
+           - Efectos de retroceso en el disparo
+
+        2. ANTICIPATION (Anticipación):
+           - Movimiento preparatorio de los vaqueros antes del conteo
+           - Posicionamiento antes de cada ronda
+
+        3. STAGING (Puesta en escena):
+           - Composición clara del desierto
+           - Posicionamiento de los vaqueros en extremos opuestos
+           - UI organizada y clara
+
+        4. STRAIGHT AHEAD vs POSE-TO-POSE (Directo vs Pose a Pose):
+           - Animaciones de disparo con poses clave definidas
+           - Movimientos fluidos en las transiciones
+
+        5. FOLLOW THROUGH & OVERLAPPING ACTION (Seguimiento y Superposición):
+           - Retroceso del arma después del disparo
+           - Continuación del movimiento en las caídas
+
+        6. SLOW IN SLOW OUT (Aceleración y Desaceleración):
+           - Easing aplicado en todas las animaciones (Power2, Sine, etc.)
+           - Movimientos naturales sin cambios bruscos
+
+        7. ARCS (Arcos):
+           - Trayectorias curvas en las caídas de los vaqueros
+           - Movimientos de partículas en fuegos artificiales
+
+        8. SECONDARY ACTION (Acción Secundaria):
+           - Animaciones del sombrero mientras el cuerpo se mueve
+           - Efectos de partículas durante celebraciones
+
+        9. TIMING (Timing):
+           - Conteo regresivo cronometrado
+           - Duración precisa de cada fase del juego
+           - Sincronización entre animaciones
+
+        10. EXAGGERATION (Exageración):
+            - Caídas dramáticas del perdedor
+            - Efectos visuales amplificados
+            - Temblor de cámara en disparos tempranos
+
+        11. SOLID DRAWING (Dibujo Sólido):
+            - Formas claras y consistentes para los vaqueros
+            - Proporciones mantenidas durante animaciones
+
+        12. APPEAL (Atractivo):
+            - Paleta de colores western consistente
+            - Efectos visuales llamativos
+            - Interfaz clara y atractiva
+            - Celebraciones espectaculares
+        */
+    </script>
+</body>
+</html>

@@ -18,6 +18,15 @@ export default {
 			}
 		},
 		extend: {
+			backgroundImage: {
+				'gradient-desert': 'var(--gradient-desert)',
+				'gradient-sunset': 'var(--gradient-sunset)',
+				'gradient-leather': 'var(--gradient-leather)',
+			},
+			boxShadow: {
+				'western': 'var(--shadow-western)',
+				'glow': 'var(--shadow-glow)',
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
