@@ -48,7 +48,7 @@
 </head>
 <body>
     <div class="game-container">
-        <div class="title">🤠 DUELO DE VAQUEROS 🤠</div>
+        <div class="title"> DUELO DE VAQUEROS </div>
         <div class="instructions">
             Jugador 1: Tecla A | Jugador 2: Tecla L<br>
             ¡Primero en llegar a 3 victorias gana!
@@ -197,7 +197,7 @@
                 if (this.textures.exists('cowboy')) {
                     // Usar la imagen del vaquero proporcionada
                     const cowboy1Sprite = this.add.image(200, 400, 'cowboy');
-                    cowboy1Sprite.setScale(0.8); // Ajustar tamaño
+                    cowboy1Sprite.setScale(0.5); // Ajustar tamaño
                     cowboy1Sprite.setFlipX(false); // Mirando hacia la derecha
                     this.cowboy1.add(cowboy1Sprite);
                     this.cowboy1Body = cowboy1Sprite;
@@ -221,7 +221,7 @@
                 if (this.textures.exists('cowboy')) {
                     // Usar la imagen del vaquero proporcionada
                     const cowboy2Sprite = this.add.image(600, 400, 'cowboy');
-                    cowboy2Sprite.setScale(0.8); // Ajustar tamaño
+                    cowboy2Sprite.setScale(0.5); // Ajustar tamaño
                     cowboy2Sprite.setFlipX(true); // Mirando hacia la izquierda
                     this.cowboy2.add(cowboy2Sprite);
                     this.cowboy2Body = cowboy2Sprite;

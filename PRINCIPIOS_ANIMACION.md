@@ -1,4 +1,4 @@
-# 🎬 Aplicación de los 12 Principios de Animación de Disney
+# Aplicación de los 12 Principios de Animación de Disney
 
 ## Duelo de Vaqueros - Análisis de Implementación
 
@@ -72,7 +72,7 @@ createCowboys() {
 
 ---
 
-## 4. 📐 **STRAIGHT AHEAD vs POSE-TO-POSE** (Directo vs Pose a Pose)
+## 4.  **STRAIGHT AHEAD vs POSE-TO-POSE** (Directo vs Pose a Pose)
 **Principio**: Combinar animación fluida con poses clave definidas.
 
 ### Implementación en el juego:
@@ -102,7 +102,7 @@ animateShot(winner) {
 
 ---
 
-## 5. 🔄 **FOLLOW THROUGH & OVERLAPPING ACTION** (Seguimiento y Superposición)
+## 5.  **FOLLOW THROUGH & OVERLAPPING ACTION** (Seguimiento y Superposición)
 **Principio**: Las partes del cuerpo se mueven a diferentes velocidades y direcciones.
 
 ### Implementación en el juego:
@@ -123,7 +123,7 @@ this.tweens.add({
 
 ---
 
-## 6. 🌊 **SLOW IN SLOW OUT** (Aceleración y Desaceleración)
+## 6.  **SLOW IN SLOW OUT** (Aceleración y Desaceleración)
 **Principio**: Los movimientos deben acelerar y desacelerar de forma natural.
 
 ### Implementación en el juego:
@@ -141,7 +141,7 @@ ease: 'Bounce.easeOut'    // Para efectos de rebote
 
 ---
 
-## 7. 🌈 **ARCS** (Arcos)
+## 7.  **ARCS** (Arcos)
 **Principio**: Los movimientos naturales siguen trayectorias curvas.
 
 ### Implementación en el juego:
@@ -163,7 +163,7 @@ this.tweens.add({
 
 ---
 
-## 8. 🎪 **SECONDARY ACTION** (Acción Secundaria)
+## 8.  **SECONDARY ACTION** (Acción Secundaria)
 **Principio**: Acciones que complementan y enriquecen la acción principal.
 
 ### Implementación en el juego:
@@ -185,7 +185,7 @@ showEarlyShot(player) {
 
 ---
 
-## 9. ⏱️ **TIMING** (Timing)
+## 9.  **TIMING** (Timing)
 **Principio**: La velocidad de un movimiento afecta su percepción.
 
 ### Implementación en el juego:
@@ -210,7 +210,7 @@ const countInterval = setInterval(() => {
 
 ---
 
-## 10. 💥 **EXAGGERATION** (Exageración)
+## 10.  **EXAGGERATION** (Exageración)
 **Principio**: Enfatizar ciertos aspectos de un movimiento para hacerlo más interesante.
 
 ### Implementación en el juego:
@@ -232,7 +232,7 @@ this.tweens.add({
 
 ---
 
-## 11. 🎨 **SOLID DRAWING** (Dibujo Sólido)
+## 11.  **SOLID DRAWING** (Dibujo Sólido)
 **Principio**: Mantener la forma y consistencia de los objetos.
 
 ### Implementación en el juego:
@@ -253,7 +253,7 @@ createCowboys() {
 
 ---
 
-## 12. ⭐ **APPEAL** (Atractivo)
+## 12.  **APPEAL** (Atractivo)
 **Principio**: Crear movimientos que sean visualmente agradables.
 
 ### Implementación en el juego:
@@ -302,6 +302,3 @@ showGameWinner() {
 ### Resultado:
 Un juego que no solo funciona mecánicamente, sino que se siente **vivo**, **natural** y **atractivo**, siguiendo los principios fundamentales que han hecho exitosas las animaciones de Disney durante décadas.
 
----
-
-*"El secreto de la animación exitosa no está en la tecnología, sino en hacer que el movimiento se sienta real y emocional"* - Principios de Disney aplicados al gaming.
