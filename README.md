@@ -47,3 +47,6 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## Preview with Vercel
+
+- https://vaqueros-omega.vercel.app/ 
