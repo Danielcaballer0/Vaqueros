@@ -286,7 +286,7 @@ showGameWinner() {
 
 ---
 
-## 🎯 Resumen de Implementación
+## Resumen de Implementación
 
 ### Principios más prominentes en el juego:
 1. **Timing** - Fundamental para la mecánica de duelo
@@ -300,5 +300,5 @@ showGameWinner() {
 3. **Slow In Slow Out** - Hace que todo se sienta natural
 
 ### Resultado:
-Un juego que no solo funciona mecánicamente, sino que se siente **vivo**, **natural** y **atractivo**, siguiendo los principios fundamentales que han hecho exitosas las animaciones de Disney durante décadas.
+No solo funciona mecánicamente, sino que se siente **vivo**, **natural** y **atractivo**, siguiendo los principios fundamentales que han hecho exitosas las animaciones de Disney durante décadas.
 
